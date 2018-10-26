@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IATITester.IATILib;
-using IATITester.IATILib.IATIVersion1;
-using IATITester.IATILib.IATIVersion2;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
