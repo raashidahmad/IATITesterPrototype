@@ -5,6 +5,14 @@ using System.Threading.Tasks;
 
 namespace IATITester.Models
 {
+    public enum OrganizationRole
+    {
+         Funding = 1,
+         Accountable = 2,
+         Extending = 3,
+         Implementing = 4
+    }
+
     public class CountryOrgModel
     {
         public string CountryCode { get; set; }
@@ -21,11 +29,22 @@ namespace IATITester.Models
         public string RecipientRegion { get; set; }
         public string Sector { get; set; }
         public ICollection<Organization> ParticipatingOrganizations { get; set; }
+        public ICollection<Transaction> Transactions { get; set; }
     }
 
     public class Organization
     {
         public string Name { get; set; }
         public string Role { get; set; }
+    }
+
+    public class Transaction
+    {
+        public string AidType { get; set; }
+        public string TransactionType { get; set; }
+        public string Currency { get; set; }
+        public string Amount { get; set; }
+        public string Dated { get; set; }
+        public string Description { get; set; }
     }
 }

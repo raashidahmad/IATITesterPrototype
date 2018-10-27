@@ -20,17 +20,47 @@ namespace IATITester.IATILib.Parsers
             {
                 string startDate, endDate = "";
                 currency = activity.Attribute("default-currency").Value;
+
+                //Extracting dates
                 var dates = activity.Elements("activity-date");
                 foreach(var date in dates)
                 {
                     if(date.Attribute("type").Value.Equals("start-actual"))
                     {
-                        startDate = date.FirstAttribute.Value;
+                        startDate = date.FirstAttribute?.Value;
                     }
                     else if(date.Attribute("type").Value.Equals("end-planned"))
                     {
-                        endDate = date.FirstAttribute.Value;
+                        endDate = date.FirstAttribute?.Value;
                     }
+                }
+
+                //Extracting participating organizations
+                var organizations = activity.Elements("participating-org");
+                List<Organization> organizationList = new List<Organization>();
+                foreach(var organization in organizations)
+                {
+                    organizationList.Add(new Organization()
+                    {
+                        Name = organization?.Value,
+                        Role = organization.Attribute("role")?.Value
+                    });
+                }
+
+                //Extracting transactions
+                var transactions = activity.Elements("transaction");
+                List<Transaction> transactionsList = new List<Transaction>();
+                foreach(var transaction in transactions)
+                {
+                    transactionsList.Add(new Transaction()
+                    {
+                        Amount = transaction.Element("value")?.Value,
+                        Currency = transaction.Element("value")?.FirstAttribute.Value,
+                        Dated = transaction.Element("transaction-date")?.Attribute("iso-date").Value,
+                        AidType = transaction.Element("aid-type")?.Value,
+                        TransactionType = transaction.Element("transaction-type")?.Value,
+                        Description = transaction.Element("description")?.Value
+                    });
                 }
 
                 activityList.Add(new IATIActivity()
@@ -41,7 +71,9 @@ namespace IATITester.IATILib.Parsers
                     RecipientRegion = activity.Element("recipient-region")?.Value,
                     Description = activity.Element("description")?.Value,
                     Sector = activity.Element("sector")?.Value,
-                    DefaultCurrency = currency
+                    DefaultCurrency = currency,
+                    Transactions = transactionsList,
+                    ParticipatingOrganizations = organizationList
                 });
             }
             return activityList;
