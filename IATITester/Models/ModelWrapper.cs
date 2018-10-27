@@ -29,7 +29,7 @@ namespace IATITester.Models
         public string RecipientRegion { get; set; }
         public string Sector { get; set; }
         public ICollection<Organization> ParticipatingOrganizations { get; set; }
-        public ICollection<Transaction> Transactions { get; set; }
+        public ICollection<IATITransaction> Transactions { get; set; }
     }
 
     public class Organization
@@ -38,7 +38,7 @@ namespace IATITester.Models
         public string Role { get; set; }
     }
 
-    public class Transaction
+    public class IATITransaction
     {
         public string AidType { get; set; }
         public string TransactionType { get; set; }

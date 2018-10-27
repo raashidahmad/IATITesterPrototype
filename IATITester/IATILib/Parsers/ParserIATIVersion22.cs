@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace IATITester.IATILib.Parsers
 {
-    public class ParserIATIVersion13
+    public class ParserIATIVersion22
     {
         public ICollection<IATIActivity> ExtractAcitivities(XDocument xmlDoc)
         {
@@ -16,20 +16,20 @@ namespace IATITester.IATILib.Parsers
                              select activity;
 
             string currency = "";
-            foreach(var activity in activities)
+            foreach (var activity in activities)
             {
                 string startDate, endDate = "";
                 currency = activity.Attribute("default-currency").Value;
 
                 //Extracting dates
                 var dates = activity.Elements("activity-date");
-                foreach(var date in dates)
+                foreach (var date in dates)
                 {
-                    if(date.Attribute("type").Value.Equals("start-actual"))
+                    if (date.Attribute("type").Value.Equals("start-actual"))
                     {
                         startDate = date.FirstAttribute?.Value;
                     }
-                    else if(date.Attribute("type").Value.Equals("end-planned"))
+                    else if (date.Attribute("type").Value.Equals("end-planned"))
                     {
                         endDate = date.FirstAttribute?.Value;
                     }
@@ -38,19 +38,25 @@ namespace IATITester.IATILib.Parsers
                 //Extracting participating organizations
                 var organizations = activity.Elements("participating-org");
                 List<Organization> organizationList = new List<Organization>();
-                foreach(var organization in organizations)
+                foreach (var organization in organizations)
                 {
+                    var role = (OrganizationRole)Enum.Parse(typeof(OrganizationRole), organization.Attribute("role").Value);
+                    var narratives = organization.Elements("narrative");
+                    var organizationName = (from n in narratives
+                                           where n.FirstAttribute.Value == "en"
+                                           select n.FirstAttribute.Value).FirstOrDefault();
+
                     organizationList.Add(new Organization()
                     {
-                        Name = organization?.Value,
-                        Role = organization.Attribute("role")?.Value
+                        Name = organizationName,
+                        Role = role.ToString()
                     });
                 }
 
                 //Extracting transactions
                 var transactions = activity.Elements("transaction");
                 List<IATITransaction> transactionsList = new List<IATITransaction>();
-                foreach(var transaction in transactions)
+                foreach (var transaction in transactions)
                 {
                     transactionsList.Add(new IATITransaction()
                     {
