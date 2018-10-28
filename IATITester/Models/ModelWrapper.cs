@@ -32,6 +32,13 @@ namespace IATITester.Models
         public ICollection<IATITransaction> Transactions { get; set; }
     }
 
+    public class Budget
+    {
+        public string PeriodStart { get; set; }
+        public string PeriodEnd { get; set; }
+        public string PlannedAmount { get; set; }
+    }
+
     public class Organization
     {
         public string Name { get; set; }
