@@ -64,15 +64,46 @@ namespace IATITester.IATILib.Parsers
                 }
 
                 //Extracting Receipient Countries
-                var recipientCountries = activity.Elements("recepient-country");
+                decimal percentage = 100;
+                var recipientCountries = activity.Elements("recipient-country");
                 List<Country> countries = new List<Country>();
-                var percentage = (100 / recipientCountries.Count()) * 100;
+                if (recipientCountries.Count() > 1)
+                {
+                    percentage = (100 / recipientCountries.Count());
+                }
+                    
                 foreach(var country in recipientCountries)
                 {
                     countries.Add(new Country()
                     {
-                        Code = country.Attribute("code").Value,
+                        Code = country.Attribute("code")?.Value,
                         ContributionPercentage = percentage.ToString()
+                    });
+                }
+
+                //Extracting Receipient Regions
+                var recipientRegions = activity.Elements("recipient-region");
+                List<Region> regions = new List<Region>();
+                var regionPercentage = (100 / recipientRegions.Count());
+                foreach (var region in recipientRegions)
+                {
+                    regions.Add(new Region()
+                    {
+                        Code = region.Attribute("code")?.Value,
+                        ContributionPercentage = regionPercentage.ToString()
+                    });
+                }
+
+                //Extracting Sectors
+                var aSectors = activity.Elements("sector");
+                List<Sector> sectors = new List<Sector>();
+                var sectorPercentage = (100 / aSectors.Count());
+                foreach (var sector in aSectors)
+                {
+                    sectors.Add(new Sector()
+                    {
+                        Code = sector.Value,
+                        FundPercentage = sectorPercentage.ToString()
                     });
                 }
 
@@ -81,9 +112,9 @@ namespace IATITester.IATILib.Parsers
                     Identifier = activity.Element("iati-identifier")?.Value,
                     Title = activity.Element("title")?.Value,
                     Countries = countries,
-                    RecipientRegion = activity.Element("recipient-region")?.Value,
+                    Regions = regions,
                     Description = activity.Element("description")?.Value,
-                    Sector = activity.Element("sector")?.Value,
+                    Sectors = sectors,
                     DefaultCurrency = currency,
                     Transactions = transactionsList,
                     ParticipatingOrganizations = organizationList

@@ -24,10 +24,9 @@ namespace IATITester.Controllers
 
         }
 
-        [HttpPost]
-        public IActionResult SearchByCountryOrg([FromBody] CountryOrgModel model)
+        [HttpGet("{countryCode}")]
+        public IActionResult GetIATIDataForCountry(string countryCode)
         {
-            //var serializer = new XmlSerializer(typeof(XMLResultVersion1), new XmlRootAttribute("result"));
             // Create an XmlNamespaceManager to resolve namespaces.
             NameTable nameTable = new NameTable();
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(nameTable);
@@ -36,11 +35,9 @@ namespace IATITester.Controllers
             // required to parse the XML fragment, including the entity information and the
             // XmlNamespaceManager to use for namespace resolution.
             XmlParserContext xmlParserContext = new XmlParserContext(nameTable, nsmgr, null, XmlSpace.None);
-
-            // Create the reader.
             XmlReaderSettings xmlReaderSettings = new XmlReaderSettings();
             xmlReaderSettings.NameTable = nameTable;
-            string url = "http://datastore.iatistandard.org/api/1/access/activity.xml?recipient-country=SOM";
+            string url = "http://datastore.iatistandard.org/api/1/access/activity.xml?recipient-country=" + countryCode;
             XmlReader xReader = XmlReader.Create(url, xmlReaderSettings, xmlParserContext);
             XDocument xDoc = XDocument.Load(xReader);
             var activity = (from el in xDoc.Descendants("iati-activity")

@@ -43,15 +43,21 @@ namespace IATITester.Models
         public string ContributionPercentage { get; set; }
     }
 
+    public class Sector
+    {
+        public string Code { get; set; }
+        public string FundPercentage { get; set; }
+    }
+
     public class IATIActivity
     {
         public string Identifier { get; set; }
         public string DefaultCurrency { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public string RecipientRegion { get; set; }
-        public string Sector { get; set; }
+        public ICollection<Sector> Sectors { get; set; }
         public ICollection<Country> Countries { get; set; }
+        public ICollection<Region> Regions { get; set; }
         public ICollection<Organization> ParticipatingOrganizations { get; set; }
         public ICollection<IATITransaction> Transactions { get; set; }
     }

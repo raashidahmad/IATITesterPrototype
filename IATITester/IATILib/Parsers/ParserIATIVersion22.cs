@@ -97,8 +97,31 @@ namespace IATITester.IATILib.Parsers
                 {
                     countries.Add(new Country()
                     {
-                        Code = country.Attribute("code").Value,
-                        ContributionPercentage = country.Attribute("percentage").Value
+                        Code = country.Attribute("code")?.Value,
+                        ContributionPercentage = country.Attribute("percentage")?.Value
+                    });
+                }
+
+                //Extracting Receipient Regions
+                var recipientRegions = activity.Elements("recipient-region");
+                List<Region> regions = new List<Region>();
+                foreach (var region in recipientRegions)
+                {
+                    regions.Add(new Region()
+                    {
+                        Code = region.Attribute("code")?.Value,
+                        ContributionPercentage = region.Attribute("percentage")?.Value 
+                    });
+                }
+
+                var aSectors = activity.Elements("sector");
+                List<Sector> sectors = new List<Sector>();
+                foreach (var sector in aSectors)
+                {
+                    sectors.Add(new Sector()
+                    {
+                        Code = sector.Attribute("code")?.Value,
+                        FundPercentage = sector.Attribute("percentage")?.Value
                     });
                 }
 
@@ -107,9 +130,9 @@ namespace IATITester.IATILib.Parsers
                     Identifier = activity.Element("iati-identifier")?.Value,
                     Title = activity.Element("title")?.Value,
                     Countries = countries,
-                    RecipientRegion = activity.Element("recipient-region")?.Value,
+                    Regions = regions,
                     Description = activity.Element("description")?.Value,
-                    Sector = activity.Element("sector")?.Value,
+                    Sectors = sectors,
                     DefaultCurrency = currency,
                     Transactions = transactionsList,
                     ParticipatingOrganizations = organizationList
