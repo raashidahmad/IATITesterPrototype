@@ -63,11 +63,24 @@ namespace IATITester.IATILib.Parsers
                     });
                 }
 
+                //Extracting Receipient Countries
+                var recipientCountries = activity.Elements("recepient-country");
+                List<Country> countries = new List<Country>();
+                var percentage = (100 / recipientCountries.Count()) * 100;
+                foreach(var country in recipientCountries)
+                {
+                    countries.Add(new Country()
+                    {
+                        Code = country.Attribute("code").Value,
+                        ContributionPercentage = percentage.ToString()
+                    });
+                }
+
                 activityList.Add(new IATIActivity()
                 {
                     Identifier = activity.Element("iati-identifier")?.Value,
                     Title = activity.Element("title")?.Value,
-                    RecipientCountry = activity.Element("recipient-country")?.Value,
+                    Countries = countries,
                     RecipientRegion = activity.Element("recipient-region")?.Value,
                     Description = activity.Element("description")?.Value,
                     Sector = activity.Element("sector")?.Value,

@@ -13,10 +13,34 @@ namespace IATITester.Models
          Implementing = 4
     }
 
+    public class AidTypes
+    {
+        public string Code { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class TransactionTypes
+    {
+        public string Code { get; set; }
+        public string Name { get; set; }
+    }
+
     public class CountryOrgModel
     {
         public string CountryCode { get; set; }
         public string OrgCode { get; set; }
+    }
+
+    public class Country
+    {
+        public string Code { get; set; }
+        public string ContributionPercentage { get; set; }
+    }
+
+    public class Region
+    {
+        public string Code { get; set; }
+        public string ContributionPercentage { get; set; }
     }
 
     public class IATIActivity
@@ -25,9 +49,9 @@ namespace IATITester.Models
         public string DefaultCurrency { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public string RecipientCountry { get; set; }
         public string RecipientRegion { get; set; }
         public string Sector { get; set; }
+        public ICollection<Country> Countries { get; set; }
         public ICollection<Organization> ParticipatingOrganizations { get; set; }
         public ICollection<IATITransaction> Transactions { get; set; }
     }
