@@ -9,16 +9,18 @@ using System.Xml.Linq;
 
 namespace IATITester.IATILib.Parsers
 {
-    public class ParserIATIVersion22
+    public class ParserIATIVersion21 : IParser
     {
         IConfiguration configuration;
         ICollection<AidTypes> aidTypes;
         ICollection<TransactionTypes> transactionTypes;
-        public ParserIATIVersion22(IConfiguration config)
+        public ParserIATIVersion21(IConfiguration config)
         {
             this.configuration = config;
-            aidTypes = JsonConvert.DeserializeObject<List<AidTypes>>(configuration["aidTypes"]);
-            transactionTypes = JsonConvert.DeserializeObject<List<TransactionTypes>>(configuration["transactionTypes"]);
+            var aidData = configuration.GetSection("AidTypes").GetChildren();
+            var transactionData = configuration.GetSection("TransactionTypes").GetChildren();
+            aidTypes = this.FillAidTypes(aidData);
+            transactionTypes = this.FillTransactionTypes(transactionData);
         }
 
         public ICollection<IATIActivity> ExtractAcitivities(XDocument xmlDoc)
@@ -54,10 +56,22 @@ namespace IATITester.IATILib.Parsers
                 {
                     var role = (OrganizationRole)Enum.Parse(typeof(OrganizationRole), organization.Attribute("role").Value);
                     var narratives = organization.Elements("narrative");
-                    var organizationName = (from n in narratives
-                                           where n.FirstAttribute.Value == "en"
-                                           select n.FirstAttribute.Value).FirstOrDefault();
+                    string organizationName = "";
 
+                    if (narratives.Count() > 0)
+                    {
+                        if (narratives.FirstOrDefault().HasAttributes)
+                        {
+                            organizationName = (from n in narratives
+                                                where n.FirstAttribute.Value == "en"
+                                                select n.FirstAttribute.Value).FirstOrDefault();
+                        }
+                        else
+                        {
+                            organizationName = organization.Element("narrative")?.Value;
+                        }
+                    }
+                    
                     organizationList.Add(new Organization()
                     {
                         Name = organizationName,
@@ -65,17 +79,23 @@ namespace IATITester.IATILib.Parsers
                     });
                 }
 
+                string aidType = "";
+                var aidTypeObj = activity.Element("default-aid-type");
+                if (aidTypeObj != null && aidTypeObj.HasAttributes)
+                {
+                    string aidTypeCode = aidTypeObj.Attribute("code")?.Value;
+                    aidType = (from t in aidTypes
+                               where t.Code.Equals(aidTypeCode)
+                               select t.Name).FirstOrDefault();
+                }
+
                 //Extracting transactions
                 var transactions = activity.Elements("transaction");
                 List<IATITransaction> transactionsList = new List<IATITransaction>();
                 foreach (var transaction in transactions)
                 {
-                    string aidTypeCode = transaction.Element("aid-type")?.Value;
-                    string transactionCode = transaction.Element("transaction-type")?.Value;
-
-                    string aidType = (from t in aidTypes
-                                      where t.Code.Equals(aidTypeCode)
-                                      select t.Name).FirstOrDefault();
+                    
+                    string transactionCode = transaction.Element("transaction-type").Attribute("code")?.Value;
                     string transactionType = (from t in transactionTypes
                                               where t.Code.Equals(transactionCode)
                                               select t.Name).FirstOrDefault();
@@ -140,5 +160,34 @@ namespace IATITester.IATILib.Parsers
             }
             return activityList;
         }
+
+        public List<AidTypes> FillAidTypes(IEnumerable<IConfigurationSection> dataArray)
+        {
+            List<AidTypes> list = new List<AidTypes>();
+            foreach (var data in dataArray)
+            {
+                list.Add(new AidTypes()
+                {
+                    Code = data.GetValue<string>("Code"),
+                    Name = data.GetValue<string>("Name")
+                });
+            }
+            return list;
+        }
+
+        public List<TransactionTypes> FillTransactionTypes(IEnumerable<IConfigurationSection> dataArray)
+        {
+            List<TransactionTypes> list = new List<TransactionTypes>();
+            foreach (var data in dataArray)
+            {
+                list.Add(new TransactionTypes()
+                {
+                    Code = data.GetValue<string>("Code"),
+                    Name = data.GetValue<string>("Name")
+                });
+            }
+            return list;
+        }
+
     }
 }

@@ -11,6 +11,7 @@ using IATITester.IATILib.Parsers;
 using IATITester.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace IATITester.Controllers
@@ -19,9 +20,10 @@ namespace IATITester.Controllers
     [ApiController]
     public class IATIController : ControllerBase
     {
-        public IATIController()
+        IConfiguration configuration;
+        public IATIController(IConfiguration config)
         {
-
+            this.configuration = config;
         }
 
         [HttpGet("{countryCode}")]
@@ -43,12 +45,22 @@ namespace IATITester.Controllers
             var activity = (from el in xDoc.Descendants("iati-activity")
                              select el.FirstAttribute).FirstOrDefault();
 
-            ParserIATIVersion13 parser = new ParserIATIVersion13();
-            var activityList = parser.ExtractAcitivities(xDoc);
-
+            IParser parser;
+            ICollection<IATIActivity> activityList = new List<IATIActivity>();
             string version = "";
             version = activity.Value;
+            switch(version)
+            {
+                case "1.03":
+                    parser = new ParserIATIVersion13();
+                    activityList = parser.ExtractAcitivities(xDoc);
+                    break;
 
+                case "2.01":
+                    parser = new ParserIATIVersion21(configuration);
+                    activityList = parser.ExtractAcitivities(xDoc);
+                    break;
+            }
             return Ok(activityList);
         }
 

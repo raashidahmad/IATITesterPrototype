@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace IATITester.IATILib.Parsers
 {
-    public class ParserIATIVersion13
+    public class ParserIATIVersion13 : IParser
     {
         public ICollection<IATIActivity> ExtractAcitivities(XDocument xmlDoc)
         {
@@ -84,7 +84,12 @@ namespace IATITester.IATILib.Parsers
                 //Extracting Receipient Regions
                 var recipientRegions = activity.Elements("recipient-region");
                 List<Region> regions = new List<Region>();
-                var regionPercentage = (100 / recipientRegions.Count());
+                decimal regionPercentage = 100;
+                if (recipientRegions.Count() > 1)
+                {
+                    regionPercentage = (100 / recipientRegions.Count());
+                }
+                
                 foreach (var region in recipientRegions)
                 {
                     regions.Add(new Region()
